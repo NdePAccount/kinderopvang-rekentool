@@ -32,6 +32,16 @@ export function Step00Welcome() {
         </p>
       </div>
 
+      <div className="bg-muted/40 border border-border rounded-xl p-4 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-foreground">Invoergegevens vooraf verzamelen?</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Download het invultemplate om alle benodigde gegevens op te halen.</p>
+        </div>
+        <a href="/template-invoergegevens.pdf" download className="shrink-0">
+          <Button variant="outline" size="sm">Download template</Button>
+        </a>
+      </div>
+
       <Button size="lg" className="w-full text-base py-6" onClick={() => setStep(1)}>
         Start stappenplan →
       </Button>

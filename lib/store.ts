@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import type { WizardState, SpeelruimteState, SlaapruimteState, SanitairState, KeukenState, KantoorState, OverigState, OndersteunendState, GedeeldRuimte, KostenState, HuursomState, Opvangvorm } from './types'
+import type { WizardState, SpeelruimteState, SlaapruimteState, SlaapruimteGroepState, SanitairState, KeukenState, KantoorState, OverigState, OndersteunendState, GedeeldRuimte, KostenState, HuursomState, Opvangvorm } from './types'
 
-const initialState: Omit<WizardState, 'setStep' | 'setOpvangvorm' | 'setGroups' | 'setSpeelruimte' | 'setSlaapruimte' | 'setSanitair' | 'setKeuken' | 'setKantoor' | 'setOverig' | 'setOndersteunend' | 'setGedeeld' | 'setKosten' | 'setHuursom' | 'reset'> = {
+const initialState: Omit<WizardState, 'setStep' | 'setOpvangvorm' | 'setGroups' | 'setSpeelruimte' | 'setSlaapruimteGroep' | 'setSanitair' | 'setKeuken' | 'setKantoor' | 'setOverig' | 'setOndersteunend' | 'setGedeeld' | 'setKosten' | 'setHuursom' | 'reset'> = {
   step: 0,
   opvangvorm: null,
   groups: {
@@ -9,7 +9,11 @@ const initialState: Omit<WizardState, 'setStep' | 'setOpvangvorm' | 'setGroups' 
     bso: { g4_12: 0, g4_6: 0, g7_12: 0 },
   },
   speelruimte: { policy: 'wettelijk', m2PerKindplaats: 3.5 },
-  slaapruimte: { aantalPolicy: 'standaard', aantalPerGroep: 2, m2Policy: 'standaard', m2PerRuimte: 9 },
+  slaapruimte: {
+    g0_4: { aantalPolicy: 'standaard', aantalPerGroep: 2, m2Policy: 'standaard', m2PerRuimte: 9 },
+    g0_2: { aantalPolicy: 'standaard', aantalPerGroep: 2, m2Policy: 'standaard', m2PerRuimte: 9 },
+    g2_4: { aantalPolicy: 'standaard', aantalPerGroep: 2, m2Policy: 'standaard', m2PerRuimte: 9 },
+  },
   sanitair: {
     personeelstoiletten: 2,
     miva: 1,
@@ -48,7 +52,9 @@ export const useStore = create<WizardState>((set) => ({
   })),
   setGroups: (groups) => set((s) => ({ groups: { ...s.groups, ...groups } })),
   setSpeelruimte: (v: Partial<SpeelruimteState>) => set((s) => ({ speelruimte: { ...s.speelruimte, ...v } })),
-  setSlaapruimte: (v: Partial<SlaapruimteState>) => set((s) => ({ slaapruimte: { ...s.slaapruimte, ...v } })),
+  setSlaapruimteGroep: (key: keyof SlaapruimteState, v: Partial<SlaapruimteGroepState>) => set((s) => ({
+    slaapruimte: { ...s.slaapruimte, [key]: { ...s.slaapruimte[key], ...v } },
+  })),
   setSanitair: (v: Partial<SanitairState>) => set((s) => ({ sanitair: { ...s.sanitair, ...v } })),
   setKeuken: (v: Partial<KeukenState>) => set((s) => ({ keuken: { ...s.keuken, ...v } })),
   setKantoor: (v: Partial<KantoorState>) => set((s) => ({ kantoor: { ...s.kantoor, ...v } })),

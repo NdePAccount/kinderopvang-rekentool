@@ -5,15 +5,15 @@ import { NumberInput } from '../shared/PolicyChoice'
 import { getTotaalGroepen, getTotaalKindplaatsen } from '@/lib/calculations'
 
 const KDV_TYPES = [
-  { key: 'g0_4' as const, label: 'Groepen 0–4 jaar', max: 16 },
-  { key: 'g0_2' as const, label: 'Groepen 0–2 jaar', max: 12 },
-  { key: 'g2_4' as const, label: 'Groepen 2–4 jaar', max: 14 },
+  { key: 'g0_4' as const, label: 'Groepen 0–4 jaar', cap: 16 },
+  { key: 'g0_2' as const, label: 'Groepen 0–2 jaar', cap: 16 },
+  { key: 'g2_4' as const, label: 'Groepen 2–4 jaar', cap: 16 },
 ]
 
 const BSO_TYPES = [
-  { key: 'g4_12' as const, label: 'Groepen 4–12 jaar', max: 11 },
-  { key: 'g4_6' as const, label: 'Groepen 4–6 jaar', max: 10 },
-  { key: 'g7_12' as const, label: 'Groepen 7–12 jaar', max: 12 },
+  { key: 'g4_12' as const, label: 'Groepen 4–12 jaar', cap: 30 },
+  { key: 'g4_6' as const, label: 'Groepen 4–6 jaar', cap: 30 },
+  { key: 'g7_12' as const, label: 'Groepen 7–12 jaar', cap: 30 },
 ]
 
 export function Step02GroepenMaken() {
@@ -30,7 +30,7 @@ export function Step02GroepenMaken() {
           <p className="text-sm text-muted-foreground">Voer het aantal groepen per type in. Minimaal één groep is verplicht.</p>
         </div>
         <div className="space-y-4">
-          {KDV_TYPES.map(({ key, label, max }) => (
+          {KDV_TYPES.map(({ key, label, cap }) => (
             <NumberInput
               key={key}
               label={label}
@@ -38,7 +38,7 @@ export function Step02GroepenMaken() {
               onChange={(v) => setGroups({ kdv: { ...groups.kdv, [key]: Math.max(0, Math.floor(v)) } })}
               min={0}
               step={1}
-              hint={`Max. ${max} kinderen per groep`}
+              hint={`${cap} kindplaatsen per groep`}
             />
           ))}
         </div>
@@ -57,7 +57,7 @@ export function Step02GroepenMaken() {
         <p className="text-sm text-muted-foreground">Voer het aantal groepen per type in. Minimaal één groep is verplicht.</p>
       </div>
       <div className="space-y-4">
-        {BSO_TYPES.map(({ key, label, max }) => (
+        {BSO_TYPES.map(({ key, label, cap }) => (
           <NumberInput
             key={key}
             label={label}
@@ -65,7 +65,7 @@ export function Step02GroepenMaken() {
             onChange={(v) => setGroups({ bso: { ...groups.bso, [key]: Math.max(0, Math.floor(v)) } })}
             min={0}
             step={1}
-            hint={`Max. ${max} kinderen per groep`}
+            hint={`${cap} kindplaatsen per groep`}
           />
         ))}
       </div>
