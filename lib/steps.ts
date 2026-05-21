@@ -33,7 +33,8 @@ export function getSteps(opvangvorm: Opvangvorm | null): StepDef[] {
   steps.push(
     { index: 11, label: 'Kosten (€/m² BVO)', shortLabel: 'Kosten' },
     { index: 12, label: 'Huursom', shortLabel: 'Huursom' },
-    { index: 13, label: 'Resultaat', shortLabel: 'Resultaat' },
+    { index: 13, label: 'Geschat rendement', shortLabel: 'Rendement' },
+    { index: 14, label: 'Resultaat', shortLabel: 'Resultaat' },
   )
 
   return steps

@@ -2,21 +2,22 @@
 
 import { useStore } from '@/lib/store'
 import { PolicyChoice, NumberInput } from '../shared/PolicyChoice'
-import { getFNO, getTechFactor } from '@/lib/calculations'
+import { getFNO, getTechFactor, getVerkeersruimteFactor } from '@/lib/calculations'
 import { annuity } from '@/lib/calculations/rent'
 
 export function Step12Huursom() {
   const state = useStore()
   const { huursom, setHuursom, kosten, opvangvorm } = state
   const fno = getFNO(state)
+  const verkeers = getVerkeersruimteFactor(state)
   const techFactor = getTechFactor(state)
-  const bvo = fno * 1.15 * techFactor
-  const std = opvangvorm === 'BSO' ? 3829 : 4158
+  const bvo = fno * verkeers * techFactor
+  const std = opvangvorm === 'BSO' ? 3984 : 4326
   const kostenPerM2 = kosten.known ? kosten.kostenPerM2BVO : std
   const totaleKosten = bvo * kostenPerM2
   const rente = huursom.rentePolicy === 'standaard' ? 3.5 : huursom.rente
   const exploitatiekosten = huursom.exploitatiePolicy === 'basisscenario'
-    ? (opvangvorm === 'BSO' ? 95 : 113)
+    ? (opvangvorm === 'BSO' ? 99 : 118)
     : huursom.exploitatiekosten
   const exploitatielasten = exploitatiekosten * bvo
   const kapitaallast = rente > 0 ? annuity(totaleKosten, rente, 40) : 0
@@ -31,6 +32,11 @@ export function Step12Huursom() {
       <div className="bg-muted/50 rounded-xl p-4 text-sm text-muted-foreground space-y-1">
         <div className="flex justify-between"><span>Looptijd</span><span className="font-medium">40 jaar (vast)</span></div>
         <div className="flex justify-between"><span>Basisberekening</span><span className="font-medium">Annuïtair (vast)</span></div>
+        <div className="flex justify-between"><span>Restwaarde</span><span className="font-medium">€0 (geen restwaarde)</span></div>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-800">
+        In deze berekening wordt uitgegaan van een restwaarde van nul aan het einde van de looptijd. Dit is een conservatief uitgangspunt: de volledige investering wordt via annuïteiten terugverdiend.
       </div>
 
       <PolicyChoice
@@ -51,7 +57,7 @@ export function Step12Huursom() {
 
       <PolicyChoice
         label="Exploitatiekosten (€/m² BVO per jaar)"
-        optionA={`Basisscenario (€${opvangvorm === 'BSO' ? 95 : 113}/m² BVO/jaar)`}
+        optionA={`Basisscenario (€${opvangvorm === 'BSO' ? 99 : 118}/m² BVO/jaar)`}
         optionB="Eigen beleid"
         value={huursom.exploitatiePolicy === 'basisscenario' ? 'a' : 'b'}
         onChange={(v) => setHuursom({ exploitatiePolicy: v === 'a' ? 'basisscenario' : 'eigen' })}

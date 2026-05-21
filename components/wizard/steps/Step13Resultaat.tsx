@@ -1,7 +1,7 @@
 'use client'
 
 import { useStore } from '@/lib/store'
-import { calcKdv, calcBso, buildStandardState } from '@/lib/calculations/rent'
+import { calcKdv, calcBso, calcRendement, buildStandardState } from '@/lib/calculations/rent'
 import { Button } from '@/components/ui/button'
 
 function fmtMoney(v: number): string {
@@ -107,6 +107,66 @@ function SimpleRow({ label, value, bold }: { label: string; value: string; bold?
   )
 }
 
+function RendementSection({ rend }: { rend: ReturnType<typeof calcRendement> }) {
+  function fmtMoney(v: number) { return '€ ' + Math.round(v).toLocaleString('nl-NL') }
+  function fmtMoneyDec(v: number) { return '€ ' + v.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide px-1">Exploitatie / Rendement</p>
+      <div className="overflow-x-auto rounded-xl border border-border">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-muted/50 border-b border-border">
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted-foreground uppercase">Variabele</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-primary uppercase">Waarde</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            <tr className="hover:bg-muted/50">
+              <td className="py-2 px-3 text-sm text-muted-foreground">Bezettingsgraad</td>
+              <td className="py-2 px-3 text-sm text-right tabular-nums">{rend.bezettingsgraad}%</td>
+            </tr>
+            <tr className="hover:bg-muted/50">
+              <td className="py-2 px-3 text-sm text-muted-foreground">Aanwezige kinderen (gem.)</td>
+              <td className="py-2 px-3 text-sm text-right tabular-nums">{rend.aanwezigeKinderen.toFixed(1)}</td>
+            </tr>
+            <tr className="hover:bg-muted/50">
+              <td className="py-2 px-3 text-sm text-muted-foreground">Totale baten per jaar</td>
+              <td className="py-2 px-3 text-sm text-right tabular-nums">{fmtMoney(rend.totaleBaten)}</td>
+            </tr>
+            <tr className="hover:bg-muted/50">
+              <td className="py-2 px-3 text-sm text-muted-foreground">Geschatte totale lasten per jaar</td>
+              <td className="py-2 px-3 text-sm text-right tabular-nums">{fmtMoney(rend.geschatteLasten)}</td>
+            </tr>
+            <tr className="bg-primary/8 font-semibold">
+              <td className={`py-2 px-3 text-sm ${rend.isWinstgevend ? 'text-green-700' : 'text-red-600'}`}>Exploitatieresultaat per jaar</td>
+              <td className={`py-2 px-3 text-sm text-right tabular-nums ${rend.isWinstgevend ? 'text-green-700' : 'text-red-600'}`}>{fmtMoney(rend.exploitatieresultaat)}</td>
+            </tr>
+            <tr className="hover:bg-muted/50">
+              <td className={`py-2 px-3 text-sm ${rend.isWinstgevend ? 'text-green-700' : 'text-red-600'}`}>Rendement</td>
+              <td className={`py-2 px-3 text-sm text-right tabular-nums ${rend.isWinstgevend ? 'text-green-700' : 'text-red-600'}`}>{rend.rendementPct.toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</td>
+            </tr>
+            <tr className="hover:bg-muted/50">
+              <td className="py-2 px-3 text-sm text-muted-foreground">Resultaat per kindplaats per jaar</td>
+              <td className={`py-2 px-3 text-sm text-right tabular-nums ${rend.isWinstgevend ? 'text-green-700' : 'text-red-600'}`}>{fmtMoney(rend.resultaatPerKind)}</td>
+            </tr>
+            <tr className="hover:bg-muted/50">
+              <td className="py-2 px-3 text-sm text-muted-foreground">Kostendekkend uurtarief</td>
+              <td className="py-2 px-3 text-sm text-right tabular-nums">{fmtMoneyDec(rend.kostendekkendUurtarief)}</td>
+            </tr>
+            <tr className="hover:bg-muted/50">
+              <td className={`py-2 px-3 text-sm ${rend.verschilUurtarief >= 0 ? 'text-green-700' : 'text-red-600'}`}>Verschil met huidig tarief</td>
+              <td className={`py-2 px-3 text-sm text-right tabular-nums ${rend.verschilUurtarief >= 0 ? 'text-green-700' : 'text-red-600'}`}>{rend.verschilUurtarief >= 0 ? '+' : ''}{fmtMoneyDec(rend.verschilUurtarief)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="text-xs text-muted-foreground/60">Rendementsberekening is indicatief op basis van de ingevoerde exploitatieparameters.</p>
+    </div>
+  )
+}
+
 function downloadCsv(csvRows: CsvRow[], opvangvorm: string) {
   const header = ['Sectie', 'Variabele', 'Eenheid', 'Eigen beleid', 'Standaard', 'Verschil'].join(';')
   const lines = csvRows.map(r => {
@@ -163,6 +223,8 @@ export function Step13Resultaat() {
       { label: 'Jaarlijkse kosten per kindplaats', eigen: e.kostenPerKindplaats, standaard: s.kostenPerKindplaats, eenheid: '€/kindplaats/jaar' },
     ]
 
+    const rend = calcRendement(state)
+
     return (
       <div className="space-y-6">
         <div>
@@ -173,6 +235,10 @@ export function Step13Resultaat() {
           {rows.map((r, i) => <Row key={i} {...r} />)}
         </TableWrapper>
         <p className="text-xs text-muted-foreground/60">Verschil = Eigen beleid &minus; Standaard. Rood = hogere kosten, groen = lagere kosten.</p>
+
+        {/* Rendement section */}
+        <RendementSection rend={rend} />
+
         <div className="flex gap-3 pt-2">
           <Button className="flex-1" onClick={() => downloadCsv(csvRows, 'KDV')}>Download als CSV</Button>
           <Button variant="outline" onClick={() => setStep(1)}>Opnieuw beginnen</Button>
@@ -266,6 +332,10 @@ export function Step13Resultaat() {
       </div>
 
       <p className="text-xs text-muted-foreground/60">Verschil = Eigen beleid &minus; Standaard. Rood = hogere kosten, groen = lagere kosten.</p>
+
+      {/* Rendement section */}
+      <RendementSection rend={calcRendement(state)} />
+
       <div className="flex gap-3 pt-1">
         <Button className="flex-1" onClick={() => downloadCsv(csvRows, 'BSO')}>Download als CSV</Button>
         <Button variant="outline" onClick={() => setStep(1)}>Opnieuw beginnen</Button>

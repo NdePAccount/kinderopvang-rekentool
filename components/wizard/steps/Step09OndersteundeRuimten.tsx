@@ -2,14 +2,15 @@
 
 import { useStore } from '@/lib/store'
 import { PolicyChoice, NumberInput } from '../shared/PolicyChoice'
-import { getFNO, getTechFactor } from '@/lib/calculations'
+import { getFNO, getTechFactor, getVerkeersruimteFactor } from '@/lib/calculations'
 
 export function Step09OndersteundeRuimten() {
   const state = useStore()
   const { ondersteunend, setOndersteunend } = state
   const fno = getFNO(state)
+  const verkeers = getVerkeersruimteFactor(state)
   const techFactor = getTechFactor(state)
-  const vvo = fno * 1.15
+  const vvo = fno * verkeers
   const bvo = vvo * techFactor
 
   return (
@@ -19,11 +20,21 @@ export function Step09OndersteundeRuimten() {
         <p className="text-sm text-muted-foreground">Toeslagfactoren voor verkeersruimte en technische installaties.</p>
       </div>
 
-      <div className="bg-muted/50 rounded-xl p-4 space-y-2 text-sm">
-        <p className="font-medium text-muted-foreground mb-2">Verkeersruimte</p>
-        <p className="text-muted-foreground">Vaste toeslag van <strong>15%</strong> op het FNO. Dit is wettelijk vastgelegd en niet aanpasbaar.</p>
-        <p className="text-xs text-muted-foreground">Toeslagfactor verkeersruimte = 1,15</p>
-      </div>
+      <PolicyChoice
+        label="Toeslag verkeersruimte (FNO → VVO)"
+        optionA="Standaard (15%)"
+        optionB="Eigen beleid"
+        value={ondersteunend.verkeersPolicy === 'standaard' ? 'a' : 'b'}
+        onChange={(v) => setOndersteunend({ verkeersPolicy: v === 'a' ? 'standaard' : 'eigen', verkeerspct: v === 'a' ? 15 : ondersteunend.verkeerspct })}
+        hint="Wettelijke richtlijn: 15%. Pas alleen aan indien de situatie hiervan afwijkt."
+      >
+        <NumberInput
+          label="Verkeersruimte toeslag"
+          value={ondersteunend.verkeerspct}
+          onChange={(v) => setOndersteunend({ verkeerspct: v })}
+          min={0} step={0.5} unit="%"
+        />
+      </PolicyChoice>
 
       <PolicyChoice
         label="Toeslag technische installatieruimten en constructieoppervlakte"
@@ -46,7 +57,7 @@ export function Step09OndersteundeRuimten() {
         <p className="font-semibold text-primary mb-2">Resulterende oppervlakten</p>
         <div className="space-y-1.5 text-muted-foreground">
           <div className="flex justify-between"><span>FNO (nuttig vloeroppervlak)</span><span className="font-medium">{fno.toFixed(2)} m²</span></div>
-          <div className="flex justify-between"><span>VVO (FNO × 1,15)</span><span className="font-medium">{vvo.toFixed(2)} m²</span></div>
+          <div className="flex justify-between"><span>VVO (FNO × {verkeers.toFixed(3)})</span><span className="font-medium">{vvo.toFixed(2)} m²</span></div>
           <div className="flex justify-between font-bold text-primary"><span>BVO (VVO × {techFactor.toFixed(3)})</span><span>{bvo.toFixed(2)} m²</span></div>
         </div>
       </div>

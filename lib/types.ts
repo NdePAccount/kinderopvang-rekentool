@@ -95,8 +95,21 @@ export interface OverigState {
 }
 
 export interface OndersteunendState {
+  verkeersPolicy: Policy
+  verkeerspct: number
   techPolicy: Policy
   techPct: number
+}
+
+export interface RendementState {
+  bezettingsgraadPolicy: Policy
+  bezettingsgraad: number
+  uurtariefPolicy: Policy
+  uurtarief: number
+  opvangurenPolicy: Policy
+  opvanguren: number
+  huisvestingspctPolicy: Policy
+  huisvestingspct: number
 }
 
 export interface GedeeldRuimte {
@@ -137,6 +150,7 @@ export interface WizardState {
   gedeeld: Record<string, GedeeldRuimte>
   kosten: KostenState
   huursom: HuursomState
+  rendement: RendementState
   setStep: (step: number) => void
   setOpvangvorm: (v: Opvangvorm) => void
   setGroups: (groups: Partial<WizardState['groups']>) => void
@@ -150,5 +164,6 @@ export interface WizardState {
   setGedeeld: (key: string, v: Partial<GedeeldRuimte>) => void
   setKosten: (v: Partial<KostenState>) => void
   setHuursom: (v: Partial<HuursomState>) => void
+  setRendement: (v: Partial<RendementState>) => void
   reset: () => void
 }

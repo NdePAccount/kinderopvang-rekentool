@@ -119,6 +119,19 @@ export function validateStep(step: number, s: WizardState): string | null {
       return null
     }
 
+    case 13: { // Rendement
+      const r = s.rendement
+      if (r.bezettingsgraadPolicy === 'eigen' && (r.bezettingsgraad <= 0 || r.bezettingsgraad > 100))
+        return 'Bezettingsgraad moet tussen 0% en 100% liggen.'
+      if (r.uurtariefPolicy === 'eigen' && r.uurtarief <= 0)
+        return 'Uurtarief moet groter zijn dan 0.'
+      if (r.opvangurenPolicy === 'eigen' && r.opvanguren <= 0)
+        return 'Opvanguren per maand moeten groter zijn dan 0.'
+      if (r.huisvestingspctPolicy === 'eigen' && (r.huisvestingspct <= 0 || r.huisvestingspct > 100))
+        return 'Huisvestingspercentage moet tussen 0% en 100% liggen.'
+      return null
+    }
+
     default:
       return null
   }
