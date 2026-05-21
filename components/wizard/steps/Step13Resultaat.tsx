@@ -215,6 +215,10 @@ export function Step13Resultaat() {
         <p className="text-sm text-muted-foreground">Vergelijking van uw keuzes met de standaardwaardes.</p>
       </div>
 
+      <div className="bg-muted/50 border border-border rounded-xl px-4 py-3 text-sm text-muted-foreground space-y-1">
+        <p>Binnen het standaardscenario wordt gerekend zonder gedeelde ruimten. Hierdoor ontstaat inzicht in het financiële effect van gezamenlijke huisvesting.</p>
+      </div>
+
       {e.gedeeldFNO > 0 && (
         <>
           {/* Card 1: without sharing */}

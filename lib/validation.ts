@@ -1,5 +1,5 @@
 import type { WizardState } from './types'
-import { getTotaalGroepen, getTotaalKindplaatsen, getSlaapruimteAantal } from './calculations'
+import { getTotaalGroepen, getTotaalKindplaatsen } from './calculations'
 
 export function validateStep(step: number, s: WizardState): string | null {
   switch (step) {
@@ -21,14 +21,12 @@ export function validateStep(step: number, s: WizardState): string | null {
 
     case 4: { // Slaapruimte (KDV only)
       if (s.opvangvorm !== 'KDV') return null
-      if (s.slaapruimte.aantalPolicy === 'eigen' && s.slaapruimte.aantalPerGroep < 1)
-        return 'Minimaal 1 slaapruimte per groep.'
-      const m2 = s.slaapruimte.m2Policy === 'standaard' ? 9 : s.slaapruimte.m2PerRuimte
-      const aantalPerGroep = s.slaapruimte.aantalPolicy === 'standaard' ? 2 : s.slaapruimte.aantalPerGroep
-      const stapelbedden = Math.floor(m2 / 2)
-      const slaapplekken = stapelbedden * 2
-      const slaapplekkenPerGroep = aantalPerGroep * slaapplekken
-      if (slaapplekkenPerGroep < 16) return `Deze combinatie levert slechts ${slaapplekkenPerGroep} van de 16 benodigde slaapplekken per groep op.`
+      const keys = ['g0_4', 'g0_2', 'g2_4'] as const
+      for (const key of keys) {
+        const g = s.slaapruimte[key]
+        if (g.aantalPolicy === 'eigen' && g.aantalPerGroep < 1)
+          return 'Minimaal 1 slaapruimte per groep.'
+      }
       return null
     }
 
@@ -45,6 +43,12 @@ export function validateStep(step: number, s: WizardState): string | null {
       }
       if (s.sanitair.kindtoilet.m2Policy === 'eigen' && s.sanitair.kindtoilet.m2PerToilet < 1.2)
         return 'Minimale oppervlakte per kindtoilet is 1,2 m².'
+      if (s.opvangvorm === 'BSO') {
+        if (s.sanitair.verschoonruimte.policy === 'eigen' && s.sanitair.verschoonruimte.m2Fixed < 0)
+          return 'Oppervlakte verschoonruimte mag niet negatief zijn.'
+        if (s.sanitair.wasdroog.m2Policy === 'eigen' && s.sanitair.wasdroog.m2PerRuimte < 0)
+          return 'Oppervlakte was- en droogruimte mag niet negatief zijn.'
+      }
       return null
     }
 

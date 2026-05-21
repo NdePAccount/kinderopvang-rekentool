@@ -9,9 +9,9 @@ export function getTotaalGroepen(s: WizardState): number {
 
 export function getTotaalKindplaatsen(s: WizardState): number {
   if (s.opvangvorm === 'KDV') {
-    return s.groups.kdv.g0_4 * 16 + s.groups.kdv.g0_2 * 12 + s.groups.kdv.g2_4 * 14
+    return (s.groups.kdv.g0_4 + s.groups.kdv.g0_2 + s.groups.kdv.g2_4) * 16
   }
-  return s.groups.bso.g4_12 * 11 + s.groups.bso.g4_6 * 10 + s.groups.bso.g7_12 * 12
+  return (s.groups.bso.g4_12 + s.groups.bso.g4_6 + s.groups.bso.g7_12) * 30
 }
 
 export function getSpeelruimte(s: WizardState): number {
@@ -20,18 +20,20 @@ export function getSpeelruimte(s: WizardState): number {
   return kindplaatsen * m2
 }
 
-export function getSlaapruimte(s: WizardState): number {
-  const groepen = getTotaalGroepen(s)
-  const aantalPerGroep = s.slaapruimte.aantalPolicy === 'standaard' ? 2 : s.slaapruimte.aantalPerGroep
-  const totaalRuimten = groepen * aantalPerGroep
-  const m2PerRuimte = s.slaapruimte.m2Policy === 'standaard' ? 9 : s.slaapruimte.m2PerRuimte
-  return totaalRuimten * m2PerRuimte
+function calcGroepSlaap(groepen: number, g: { aantalPolicy: string; aantalPerGroep: number; m2Policy: string; m2PerRuimte: number }): number {
+  if (groepen === 0) return 0
+  const aantal = g.aantalPolicy === 'standaard' ? 2 : g.aantalPerGroep
+  const m2 = g.m2Policy === 'standaard' ? 9 : g.m2PerRuimte
+  return groepen * aantal * m2
 }
 
-export function getSlaapruimteAantal(s: WizardState): number {
-  const groepen = getTotaalGroepen(s)
-  const aantalPerGroep = s.slaapruimte.aantalPolicy === 'standaard' ? 2 : s.slaapruimte.aantalPerGroep
-  return groepen * aantalPerGroep
+export function getSlaapruimte(s: WizardState): number {
+  const { g0_4, g0_2, g2_4 } = s.groups.kdv
+  return (
+    calcGroepSlaap(g0_4, s.slaapruimte.g0_4) +
+    calcGroepSlaap(g0_2, s.slaapruimte.g0_2) +
+    calcGroepSlaap(g2_4, s.slaapruimte.g2_4)
+  )
 }
 
 export function getSanitair(s: WizardState): {

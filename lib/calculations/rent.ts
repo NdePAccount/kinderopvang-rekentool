@@ -1,5 +1,5 @@
 import type { WizardState } from '../types'
-import { getFNO, getSpeelruimte, getSanitair, getKeuken, getKantoor, getOverig } from './rooms'
+import { getFNO, getSpeelruimte, getSanitair, getKeuken, getKantoor, getOverig, getTotaalKindplaatsen } from './rooms'
 
 export function annuity(principal: number, ratePercent: number, years: number): number {
   const r = ratePercent / 100
@@ -47,9 +47,7 @@ export function calcKdv(s: WizardState): KdvResults {
   const exploitatielasten = exploitatiekosten * bvo
   const totaleHuursom = kapitaallast + exploitatielasten
   const huurPerM2VVO = vvo > 0 ? totaleHuursom / vvo : 0
-  const kindplaatsen = s.opvangvorm === 'KDV'
-    ? s.groups.kdv.g0_4 * 16 + s.groups.kdv.g0_2 * 12 + s.groups.kdv.g2_4 * 14
-    : 0
+  const kindplaatsen = getTotaalKindplaatsen(s)
   const kostenPerKindplaats = kindplaatsen > 0 ? totaleHuursom / kindplaatsen : 0
 
   return { fno, vvo, bvo, totaleKosten, kapitaallast, exploitatielasten, totaleHuursom, huurPerM2VVO, kostenPerKindplaats }
@@ -87,7 +85,7 @@ export function calcBso(s: WizardState): BsoResults {
   const huurPerM2VVO = ongedeeldVVO > 0 ? totaleHuursom / ongedeeldVVO : 0
   const kostendekkendHuurGedeeld = gedeeldVVO > 0 ? exploitatieGedeeld / gedeeldVVO : 0
 
-  const kindplaatsen = s.groups.bso.g4_12 * 11 + s.groups.bso.g4_6 * 10 + s.groups.bso.g7_12 * 12
+  const kindplaatsen = getTotaalKindplaatsen(s)
   const kostenPerKindplaats = kindplaatsen > 0 ? totaleHuursom / kindplaatsen : 0
 
   // "without sharing" baseline — full FNO treated as unshared
@@ -122,7 +120,11 @@ export function buildStandardState(s: WizardState): WizardState {
   return {
     ...s,
     speelruimte: { policy: 'wettelijk', m2PerKindplaats: 3.5 },
-    slaapruimte: { aantalPolicy: 'standaard', aantalPerGroep: 2, m2Policy: 'standaard', m2PerRuimte: 9 },
+    slaapruimte: {
+      g0_4: { aantalPolicy: 'standaard', aantalPerGroep: 2, m2Policy: 'standaard', m2PerRuimte: 9 },
+      g0_2: { aantalPolicy: 'standaard', aantalPerGroep: 2, m2Policy: 'standaard', m2PerRuimte: 9 },
+      g2_4: { aantalPolicy: 'standaard', aantalPerGroep: 2, m2Policy: 'standaard', m2PerRuimte: 9 },
+    },
     sanitair: {
       personeelstoiletten: 2,
       miva: 1,

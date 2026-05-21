@@ -19,11 +19,17 @@ export interface SpeelruimteState {
   m2PerKindplaats: number
 }
 
-export interface SlaapruimteState {
+export interface SlaapruimteGroepState {
   aantalPolicy: Policy
   aantalPerGroep: number
   m2Policy: Policy
   m2PerRuimte: number
+}
+
+export interface SlaapruimteState {
+  g0_4: SlaapruimteGroepState
+  g0_2: SlaapruimteGroepState
+  g2_4: SlaapruimteGroepState
 }
 
 export interface KindtoiletState {
@@ -135,7 +141,7 @@ export interface WizardState {
   setOpvangvorm: (v: Opvangvorm) => void
   setGroups: (groups: Partial<WizardState['groups']>) => void
   setSpeelruimte: (v: Partial<SpeelruimteState>) => void
-  setSlaapruimte: (v: Partial<SlaapruimteState>) => void
+  setSlaapruimteGroep: (key: keyof SlaapruimteState, v: Partial<SlaapruimteGroepState>) => void
   setSanitair: (v: Partial<SanitairState>) => void
   setKeuken: (v: Partial<KeukenState>) => void
   setKantoor: (v: Partial<KantoorState>) => void

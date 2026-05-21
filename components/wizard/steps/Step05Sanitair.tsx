@@ -92,7 +92,7 @@ export function Step05Sanitair() {
       <section className="space-y-4 pb-5 border-b border-border">
         <h3 className="font-semibold text-foreground">Verschoonruimte</h3>
         {!isKdv && (
-          <p className="text-xs text-muted-foreground italic">Er dient ruimte gereserveerd te worden voor een aankleedtafel voor incidenteel verschonen.</p>
+          <p className="text-xs text-muted-foreground italic">Binnen de tool wordt aanbevolen om rekening te houden met ruimte voor een aankleedtafel, zodat incidenteel verschonen of verzorging van kinderen op een veilige en hygiënische manier mogelijk blijft.</p>
         )}
         <PolicyChoice
           label={isKdv ? 'm² verschoonruimte per groep' : 'Oppervlakte verschoonruimte'}
@@ -113,8 +113,8 @@ export function Step05Sanitair() {
             <NumberInput
               label="Oppervlakte verschoonruimte"
               value={sanitair.verschoonruimte.m2Fixed}
-              onChange={(v) => setSanitair({ verschoonruimte: { ...sanitair.verschoonruimte, m2Fixed: v } })}
-              min={0.1} step={0.5} unit="m²" hint="Groter dan 0 m²"
+              onChange={(v) => setSanitair({ verschoonruimte: { ...sanitair.verschoonruimte, m2Fixed: Math.max(0, v) } })}
+              min={0} step={0.5} unit="m²" hint="Minimaal 0 m²"
             />
           )}
         </PolicyChoice>
@@ -124,7 +124,7 @@ export function Step05Sanitair() {
       <section className="space-y-4">
         <h3 className="font-semibold text-foreground">Was- en droogruimte</h3>
         {!isKdv && (
-          <p className="text-xs text-muted-foreground italic">Conform RIVM-richtlijnen voor kinderopvang (maximaal 1 ruimte).</p>
+          <p className="text-xs text-muted-foreground italic">Binnen de tool wordt aanbevolen om ruimte te reserveren voor wassen en drogen van textiel en schoonmaakmaterialen conform hygiëne-uitgangspunten voor kinderopvang.</p>
         )}
 
         {isKdv && (
@@ -154,8 +154,8 @@ export function Step05Sanitair() {
           <NumberInput
             label="m² per ruimte"
             value={sanitair.wasdroog.m2PerRuimte}
-            onChange={(v) => setSanitair({ wasdroog: { ...sanitair.wasdroog, m2PerRuimte: v } })}
-            min={4} step={0.5} unit="m²" hint="Minimaal 4 m²"
+            onChange={(v) => setSanitair({ wasdroog: { ...sanitair.wasdroog, m2PerRuimte: Math.max(0, v) } })}
+            min={0} step={0.5} unit="m²" hint="Minimaal 0 m²"
           />
         </PolicyChoice>
       </section>
