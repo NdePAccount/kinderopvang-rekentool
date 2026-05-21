@@ -22,6 +22,7 @@ import { Step09OndersteundeRuimten } from './steps/Step09OndersteundeRuimten'
 import { Step10GedeeldeRuimten } from './steps/Step10GedeeldeRuimten'
 import { Step11Kosten } from './steps/Step11Kosten'
 import { Step12Huursom } from './steps/Step12Huursom'
+import { Step13Rendement } from './steps/Step13Rendement'
 import { Step13Resultaat } from './steps/Step13Resultaat'
 
 const STEP_COMPONENTS: Record<number, React.ComponentType> = {
@@ -38,14 +39,15 @@ const STEP_COMPONENTS: Record<number, React.ComponentType> = {
   10: Step10GedeeldeRuimten,
   11: Step11Kosten,
   12: Step12Huursom,
-  13: Step13Resultaat,
+  13: Step13Rendement,
+  14: Step13Resultaat,
 }
 
 export function WizardContainer() {
   const state = useStore()
   const [error, setError] = useState<string | null>(null)
   const steps = getSteps(state.opvangvorm)
-  const isLast = state.step === 13
+  const isLast = state.step === 14
   const isFirst = state.step === 0
   const fno = state.step >= 3 ? getFNO(state) : null
   const currentStepIndex = steps.findIndex(s => s.index === state.step)

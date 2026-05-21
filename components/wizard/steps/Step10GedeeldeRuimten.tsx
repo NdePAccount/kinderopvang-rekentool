@@ -1,7 +1,7 @@
 'use client'
 
 import { useStore } from '@/lib/store'
-import { getSpeelruimte, getSanitair, getKeuken, getKantoor, getOverig, getTechFactor, getGedeeldM2, getFNO } from '@/lib/calculations'
+import { getSpeelruimte, getSanitair, getKeuken, getKantoor, getOverig, getTechFactor, getVerkeersruimteFactor, getGedeeldM2, getFNO } from '@/lib/calculations'
 import type { GedeeldRuimte } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -38,8 +38,9 @@ export function Step10GedeeldeRuimten() {
   const fno = getFNO(state)
   const gedeeldFNO = getGedeeldM2(state)
   const techFactor = getTechFactor(state)
-  const gedeeldVVO = gedeeldFNO * 1.15
-  const totalVVO = fno * 1.15
+  const verkeers = getVerkeersruimteFactor(state)
+  const gedeeldVVO = gedeeldFNO * verkeers
+  const totalVVO = fno * verkeers
   const pctGedeeld = totalVVO > 0 ? (gedeeldVVO / totalVVO) * 100 : 0
 
   function getEntry(key: string): GedeeldRuimte {
@@ -135,7 +136,7 @@ export function Step10GedeeldeRuimten() {
 
       <div className="bg-primary/8 border border-primary/25 rounded-xl p-4 text-sm space-y-1">
         <div className="flex justify-between text-muted-foreground"><span>Totaal gedeeld FNO</span><span className="font-medium">{gedeeldFNO.toFixed(2)} m²</span></div>
-        <div className="flex justify-between text-muted-foreground"><span>Gedeeld VVO (× 1,15)</span><span className="font-medium">{gedeeldVVO.toFixed(2)} m²</span></div>
+        <div className="flex justify-between text-muted-foreground"><span>Gedeeld VVO (× {verkeers.toFixed(3)})</span><span className="font-medium">{gedeeldVVO.toFixed(2)} m²</span></div>
         <div className="flex justify-between font-bold text-primary border-t border-primary/25 pt-2 mt-2">
           <span>Gedeeld % van gebouw</span><span>{pctGedeeld.toFixed(1)}%</span>
         </div>

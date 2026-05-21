@@ -40,6 +40,7 @@ export function Step06Keuken() {
           optionB="Eigen beleid"
           value={keuken.m2Policy === 'standaard' ? 'a' : 'b'}
           onChange={(v) => setKeuken({ m2Policy: v === 'a' ? 'standaard' : 'eigen' })}
+          hint="Indien aparte ruimte: 4 m² / Indien geïntegreerd: 1,08 m²"
         >
           <NumberInput
             label="m² per keuken"

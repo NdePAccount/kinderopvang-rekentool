@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import type { WizardState, SpeelruimteState, SlaapruimteState, SlaapruimteGroepState, SanitairState, KeukenState, KantoorState, OverigState, OndersteunendState, GedeeldRuimte, KostenState, HuursomState, Opvangvorm } from './types'
+import type { WizardState, SpeelruimteState, SlaapruimteState, SlaapruimteGroepState, SanitairState, KeukenState, KantoorState, OverigState, OndersteunendState, GedeeldRuimte, KostenState, HuursomState, RendementState, Opvangvorm } from './types'
 
-const initialState: Omit<WizardState, 'setStep' | 'setOpvangvorm' | 'setGroups' | 'setSpeelruimte' | 'setSlaapruimteGroep' | 'setSanitair' | 'setKeuken' | 'setKantoor' | 'setOverig' | 'setOndersteunend' | 'setGedeeld' | 'setKosten' | 'setHuursom' | 'reset'> = {
+const initialState: Omit<WizardState, 'setStep' | 'setOpvangvorm' | 'setGroups' | 'setSpeelruimte' | 'setSlaapruimteGroep' | 'setSanitair' | 'setKeuken' | 'setKantoor' | 'setOverig' | 'setOndersteunend' | 'setGedeeld' | 'setKosten' | 'setHuursom' | 'setRendement' | 'reset'> = {
   step: 0,
   opvangvorm: null,
   groups: {
@@ -36,10 +36,16 @@ const initialState: Omit<WizardState, 'setStep' | 'setOpvangvorm' | 'setGroups' 
     opslag: { aanwezig: false, m2: 0 },
     schoonmaak: { bouwlagen: 1, m2Policy: 'standaard', m2PerRuimte: 2 },
   },
-  ondersteunend: { techPolicy: 'standaard', techPct: 15 },
+  ondersteunend: { verkeersPolicy: 'standaard', verkeerspct: 15, techPolicy: 'standaard', techPct: 15 },
   gedeeld: {},
-  kosten: { known: false, kostenPerM2BVO: 4158 },
-  huursom: { rentePolicy: 'standaard', rente: 3.5, exploitatiePolicy: 'basisscenario', exploitatiekosten: 113 },
+  kosten: { known: false, kostenPerM2BVO: 4326 },
+  huursom: { rentePolicy: 'standaard', rente: 3.5, exploitatiePolicy: 'basisscenario', exploitatiekosten: 118 },
+  rendement: {
+    bezettingsgraadPolicy: 'standaard', bezettingsgraad: 88,
+    uurtariefPolicy: 'standaard', uurtarief: 11.23,
+    opvangurenPolicy: 'standaard', opvanguren: 91.1,
+    huisvestingspctPolicy: 'standaard', huisvestingspct: 9.47,
+  },
 }
 
 export const useStore = create<WizardState>((set) => ({
@@ -47,8 +53,14 @@ export const useStore = create<WizardState>((set) => ({
   setStep: (step) => set({ step }),
   setOpvangvorm: (opvangvorm: Opvangvorm) => set((s) => ({
     opvangvorm,
-    kosten: { ...s.kosten, kostenPerM2BVO: opvangvorm === 'BSO' ? 3829 : 4158 },
-    huursom: { ...s.huursom, exploitatiekosten: opvangvorm === 'BSO' ? 95 : 113 },
+    kosten: { ...s.kosten, kostenPerM2BVO: opvangvorm === 'BSO' ? 3984 : 4326 },
+    huursom: { ...s.huursom, exploitatiekosten: opvangvorm === 'BSO' ? 99 : 118 },
+    rendement: {
+      ...s.rendement,
+      bezettingsgraad: opvangvorm === 'BSO' ? 86 : 88,
+      uurtarief: opvangvorm === 'BSO' ? 9.98 : 11.23,
+      opvanguren: opvangvorm === 'BSO' ? 42.7 : 91.1,
+    },
   })),
   setGroups: (groups) => set((s) => ({ groups: { ...s.groups, ...groups } })),
   setSpeelruimte: (v: Partial<SpeelruimteState>) => set((s) => ({ speelruimte: { ...s.speelruimte, ...v } })),
@@ -65,5 +77,6 @@ export const useStore = create<WizardState>((set) => ({
   })),
   setKosten: (v: Partial<KostenState>) => set((s) => ({ kosten: { ...s.kosten, ...v } })),
   setHuursom: (v: Partial<HuursomState>) => set((s) => ({ huursom: { ...s.huursom, ...v } })),
+  setRendement: (v: Partial<RendementState>) => set((s) => ({ rendement: { ...s.rendement, ...v } })),
   reset: () => set({ ...initialState }),
 }))

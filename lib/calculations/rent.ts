@@ -10,6 +10,10 @@ export function getTechFactor(s: WizardState): number {
   return 1 + (s.ondersteunend.techPolicy === 'standaard' ? 15 : s.ondersteunend.techPct) / 100
 }
 
+export function getVerkeersruimteFactor(s: WizardState): number {
+  return 1 + (s.ondersteunend.verkeersPolicy === 'standaard' ? 15 : s.ondersteunend.verkeerspct) / 100
+}
+
 export interface KdvResults {
   fno: number; vvo: number; bvo: number
   totaleKosten: number; kapitaallast: number; exploitatielasten: number
@@ -35,12 +39,13 @@ export interface BsoResults {
 
 export function calcKdv(s: WizardState): KdvResults {
   const techFactor = getTechFactor(s)
+  const verkeers = getVerkeersruimteFactor(s)
   const rente = s.huursom.rente
   const exploitatiekosten = s.huursom.exploitatiekosten
   const kostenPerM2BVO = s.kosten.kostenPerM2BVO
 
   const fno = getFNO(s)
-  const vvo = fno * 1.15
+  const vvo = fno * verkeers
   const bvo = vvo * techFactor
   const totaleKosten = bvo * kostenPerM2BVO
   const kapitaallast = annuity(totaleKosten, rente, 40)
@@ -62,6 +67,7 @@ export function getGedeeldM2(s: WizardState): number {
 
 export function calcBso(s: WizardState): BsoResults {
   const techFactor = getTechFactor(s)
+  const verkeers = getVerkeersruimteFactor(s)
   const rente = s.huursom.rente
   const exploitatiekosten = s.huursom.exploitatiekosten
   const kostenPerM2BVO = s.kosten.kostenPerM2BVO
@@ -70,8 +76,8 @@ export function calcBso(s: WizardState): BsoResults {
   const gedeeldFNO = getGedeeldM2(s)
   const ongedeeldFNO = fno - gedeeldFNO
 
-  const gedeeldVVO = gedeeldFNO * 1.15
-  const ongedeeldVVO = ongedeeldFNO * 1.15
+  const gedeeldVVO = gedeeldFNO * verkeers
+  const ongedeeldVVO = ongedeeldFNO * verkeers
 
   const gedeeldBVO = gedeeldVVO * techFactor
   const ongedeeldBVO = ongedeeldVVO * techFactor
@@ -89,7 +95,7 @@ export function calcBso(s: WizardState): BsoResults {
   const kostenPerKindplaats = kindplaatsen > 0 ? totaleHuursom / kindplaatsen : 0
 
   // "without sharing" baseline — full FNO treated as unshared
-  const volledigVVO = fno * 1.15
+  const volledigVVO = fno * verkeers
   const volledigBVO = volledigVVO * techFactor
   const volledigKosten = volledigBVO * kostenPerM2BVO
   const volledigKapitaallast = annuity(volledigKosten, rente, 40)
@@ -107,6 +113,56 @@ export function calcBso(s: WizardState): BsoResults {
     totaleHuursom, huurPerM2VVO, kostendekkendHuurGedeeld, kostenPerKindplaats,
     volledigVVO, volledigBVO, volledigKosten, volledigKapitaallast, volledigExploitatie,
     volledigHuursom, volledigHuurPerM2VVO, besparingKapitaallast, besparingTotaal,
+  }
+}
+
+export interface RendementResults {
+  kindplaatsen: number
+  bezettingsgraad: number
+  aanwezigeKinderen: number
+  tarief: number
+  uren: number
+  totaleBaten: number
+  geschatteLasten: number
+  exploitatieresultaat: number
+  rendementPct: number
+  resultaatPerKind: number
+  kostendekkendUurtarief: number
+  verschilUurtarief: number
+  isWinstgevend: boolean
+}
+
+export function calcRendement(s: WizardState): RendementResults {
+  const isKdv = s.opvangvorm === 'KDV'
+  const r = s.rendement
+  const stdBezettingsgraad = isKdv ? 88 : 86
+  const stdTarief = isKdv ? 11.23 : 9.98
+  const stdUren = isKdv ? 91.1 : 42.7
+
+  const bezettingsgraad = r.bezettingsgraadPolicy === 'standaard' ? stdBezettingsgraad : r.bezettingsgraad
+  const tarief = r.uurtariefPolicy === 'standaard' ? stdTarief : r.uurtarief
+  const uren = r.opvangurenPolicy === 'standaard' ? stdUren : r.opvanguren
+  const pct = r.huisvestingspctPolicy === 'standaard' ? 9.47 : r.huisvestingspct
+
+  const huursom = isKdv ? calcKdv(s).totaleHuursom : calcBso(s).totaleHuursom
+  const kindplaatsen = getTotaalKindplaatsen(s)
+  const aanwezigeKinderen = kindplaatsen * bezettingsgraad / 100
+  const uren_jaar = uren * 12
+  const totaleBaten = aanwezigeKinderen * tarief * uren_jaar * 1.0493
+  const geschatteLasten = huursom * (100 / pct)
+  const exploitatieresultaat = totaleBaten - geschatteLasten
+  const rendementPct = totaleBaten > 0 ? (exploitatieresultaat / totaleBaten) * 100 : 0
+  const resultaatPerKind = kindplaatsen > 0 ? exploitatieresultaat / kindplaatsen : 0
+  const kostendekkendUurtarief = aanwezigeKinderen > 0 && uren_jaar > 0
+    ? geschatteLasten / (aanwezigeKinderen * uren_jaar * 1.0493)
+    : 0
+  const verschilUurtarief = tarief - kostendekkendUurtarief
+  const isWinstgevend = exploitatieresultaat >= 0
+
+  return {
+    kindplaatsen, bezettingsgraad, aanwezigeKinderen, tarief, uren,
+    totaleBaten, geschatteLasten, exploitatieresultaat, rendementPct,
+    resultaatPerKind, kostendekkendUurtarief, verschilUurtarief, isWinstgevend,
   }
 }
 
@@ -147,9 +203,10 @@ export function buildStandardState(s: WizardState): WizardState {
       opslag: { aanwezig: false, m2: 0 },
       schoonmaak: { bouwlagen: s.overig.schoonmaak.bouwlagen, m2Policy: 'standaard', m2PerRuimte: 2 },
     },
-    ondersteunend: { techPolicy: 'standaard', techPct: 15 },
+    ondersteunend: { verkeersPolicy: 'standaard', verkeerspct: 15, techPolicy: 'standaard', techPct: 15 },
     gedeeld: {},  // BSO standard has no shared spaces
-    kosten: { known: false, kostenPerM2BVO: isKdv ? 4158 : 3829 },
-    huursom: { rentePolicy: 'standaard', rente: 3.5, exploitatiePolicy: 'basisscenario', exploitatiekosten: isKdv ? 113 : 95 },
+    kosten: { known: false, kostenPerM2BVO: isKdv ? 4326 : 3984 },
+    huursom: { rentePolicy: 'standaard', rente: 3.5, exploitatiePolicy: 'basisscenario', exploitatiekosten: isKdv ? 118 : 99 },
+    rendement: s.rendement,
   } as WizardState
 }
