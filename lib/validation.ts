@@ -31,7 +31,7 @@ export function validateStep(step: number, s: WizardState): string | null {
     }
 
     case 5: { // Sanitair
-      if (s.sanitair.personeelstoiletten < 2) return 'Minimaal 2 personeelstoiletten vereist.'
+      if (s.sanitair.personeelstoiletten < 1) return 'Minimaal 1 personeelstoilet vereist.'
       if (s.sanitair.miva < 1) return 'Minimaal 1 MIVA toilet vereist.'
       if (s.sanitair.kindtoilet.aantalPolicy === 'eigen') {
         const groepen = getTotaalGroepen(s)

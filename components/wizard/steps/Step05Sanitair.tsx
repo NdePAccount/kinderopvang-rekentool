@@ -28,9 +28,9 @@ export function Step05Sanitair() {
         <NumberInput
           label="Aantal personeelstoiletten"
           value={sanitair.personeelstoiletten}
-          onChange={(v) => setSanitair({ personeelstoiletten: Math.max(2, Math.floor(v)) })}
-          min={2} step={1}
-          hint="Minimaal 2 — richtlijn: 1 per 4 medewerkers"
+          onChange={(v) => setSanitair({ personeelstoiletten: Math.max(1, Math.floor(v)) })}
+          min={1} step={1}
+          hint="Minimaal 1 — richtlijn: 1 per 8 medewerkers"
         />
 
         <NumberInput

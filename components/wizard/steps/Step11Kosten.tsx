@@ -2,15 +2,16 @@
 
 import { useStore } from '@/lib/store'
 import { YesNo, NumberInput } from '../shared/PolicyChoice'
-import { getFNO, getTechFactor } from '@/lib/calculations'
+import { getFNO, getTechFactor, getVerkeersruimteFactor } from '@/lib/calculations'
 
 export function Step11Kosten() {
   const state = useStore()
   const { kosten, setKosten, opvangvorm } = state
   const fno = getFNO(state)
+  const verkeers = getVerkeersruimteFactor(state)
   const techFactor = getTechFactor(state)
-  const bvo = fno * 1.15 * techFactor
-  const std = opvangvorm === 'BSO' ? 3829 : 4158
+  const bvo = fno * verkeers * techFactor
+  const std = opvangvorm === 'BSO' ? 3984 : 4326
   const effectief = kosten.known ? kosten.kostenPerM2BVO : std
   const totaleKosten = bvo * effectief
 
