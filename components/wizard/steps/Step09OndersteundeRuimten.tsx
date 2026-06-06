@@ -26,7 +26,7 @@ export function Step09OndersteundeRuimten() {
         optionB="Eigen beleid"
         value={ondersteunend.verkeersPolicy === 'standaard' ? 'a' : 'b'}
         onChange={(v) => setOndersteunend({ verkeersPolicy: v === 'a' ? 'standaard' : 'eigen', verkeerspct: v === 'a' ? 15 : ondersteunend.verkeerspct })}
-        hint="Wettelijke richtlijn: 15%. Pas alleen aan indien de situatie hiervan afwijkt."
+        hint="Rekenen met een toeslag op FNO van ca. 10–15%"
       >
         <NumberInput
           label="Verkeersruimte toeslag"

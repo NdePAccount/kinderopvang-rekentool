@@ -15,7 +15,7 @@ export function Step00Welcome() {
         </h1>
         <p className="text-muted-foreground leading-relaxed">
           Welkom bij de rekentool die transparantie in de huisvestingskosten per kindplaats biedt
-          en realistische huisvestingskosten in verschillende scenario&apos;s inzichtelijk maakt.
+          en huisvestingskosten in verschillende scenario&apos;s inzichtelijk maakt.
         </p>
       </div>
 
@@ -39,6 +39,16 @@ export function Step00Welcome() {
         </div>
         <a href="/template-invoergegevens.pdf" download className="shrink-0">
           <Button variant="outline" size="sm">Download template</Button>
+        </a>
+      </div>
+
+      <div className="bg-muted/40 border border-border rounded-xl p-4 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-foreground">Welke standaardwaarden worden gehanteerd?</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Download een overzicht van alle standaardwaarden, normen en bronnen die de tool gebruikt.</p>
+        </div>
+        <a href="/overzicht-standaardwaarden.pdf" download className="shrink-0">
+          <Button variant="outline" size="sm">Download toelichting</Button>
         </a>
       </div>
 
