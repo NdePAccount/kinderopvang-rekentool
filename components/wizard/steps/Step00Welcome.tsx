@@ -48,7 +48,7 @@ export function Step00Welcome() {
           <p className="text-xs text-muted-foreground mt-0.5">Download een overzicht van alle standaardwaarden, normen en bronnen die de tool gebruikt.</p>
         </div>
         <a href="/overzicht-standaardwaarden.pdf" download className="shrink-0">
-          <Button variant="outline" size="sm">Download toelichting</Button>
+          <Button variant="outline" size="sm">Download overzicht</Button>
         </a>
       </div>
 
